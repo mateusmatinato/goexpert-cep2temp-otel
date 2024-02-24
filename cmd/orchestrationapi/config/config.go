@@ -7,9 +7,9 @@ import (
 )
 
 type Config struct {
-	WeatherURL string `mapstructure:"weather_url"`
-	WeatherKey string `mapstructure:"weather_api_key"`
-	CepURL     string `mapstructure:"cep_url"`
+	WeatherURL string `mapstructure:"WEATHER_URL"`
+	WeatherKey string `mapstructure:"WEATHER_API_KEY"`
+	CepURL     string `mapstructure:"CEP_URL"`
 }
 
 func (c *Config) WeatherAPIConfig() weather.APIConfig {

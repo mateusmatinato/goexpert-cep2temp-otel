@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  input-app:
+    container_name: input-app
+    build:
+      context: .
+      dockerfile: Dockerfile-input
+    ports:
+      - "8080:8080"
+    networks:
+      - network
+    environment:
+      - ORCHESTRATION_URL=http://orchestrate-app:8081/orchestrate
+  orchestrate-app:
+    container_name: orchestrate-app
+    build:
+      context: .
+      dockerfile: Dockerfile-orchestrate
+    ports:
+      - "8081:8081"
+    networks:
+      - network
+
+networks:
+  network:
+    driver: bridge

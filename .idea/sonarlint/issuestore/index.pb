@@ -49,3 +49,14 @@ V
 &internal/input/orchestration/config.go,5/9/59d686888760cdb94d75fc5195552bd47176c044
 B
 configs/config.env,9/c/9cfd1b61ea38ee384b0013e52be3a27ccb30ee50
+=
+Dockerfile.go,7/a/7ab41e05629667ec1052b6993fe86e4541b87276
+:
+
+Dockerfile,6/6/6651ddff6eb82c840ced7c1dddee15c6e1913dd4
+B
+docker-compose.yml,3/5/35b8c13cf2eb2a194eada000eb310d65aed53b2a
+F
+Dockerfile-orchestrate,5/6/56060416139ab2c784d0e63b4cdb2190a68d8da3
+@
+Dockerfile-input,3/c/3cd24c406f05530f444d26599b6aeff8ca03155a

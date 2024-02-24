@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	internalErrors "github.com/mateusmatinato/goexpert-cep2temp-otel/internal/platform/errors"
@@ -25,7 +26,9 @@ type clientHandler struct {
 }
 
 func (c clientHandler) GetTemperatureByCEP(ctx context.Context, cep string) (Response, error) {
-	res, err := c.client.Get(fmt.Sprintf("%s/%s", c.apiConfig.OrchestrationURL, cep))
+	url := fmt.Sprintf("%s/%s", c.apiConfig.OrchestrationURL, cep)
+	log.Printf("calling url: %s\n", url)
+	res, err := c.client.Get(url)
 	if err != nil {
 		return Response{}, internalErrors.NewApplicationError(FailedOrchestration, err)
 	}

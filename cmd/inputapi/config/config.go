@@ -6,7 +6,7 @@ import (
 )
 
 type Config struct {
-	OrchestrationURL string `mapstructure:"orchestration_url"`
+	OrchestrationURL string `mapstructure:"ORCHESTRATION_URL"`
 }
 
 func (c *Config) OrchClientConfig() orchestration.APIConfig {
