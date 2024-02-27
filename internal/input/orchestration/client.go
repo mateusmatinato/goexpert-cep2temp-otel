@@ -16,6 +16,7 @@ import (
 const (
 	FailedOrchestration = "ERR_EXECUTING_ORCHESTRATION"
 	FailedUnmarshall    = "ERR_FAILED_UNMARSHALL_ORCHESTRATION"
+	NotFoundCEP         = "ERR_CANNOT_FIND_ZIPCODE"
 )
 
 type Client interface {
@@ -44,6 +45,10 @@ func (c clientHandler) GetTemperatureByCEP(ctx context.Context, cep string) (Res
 	res, err := c.client.Do(req)
 	if err != nil {
 		return Response{}, internalErrors.NewApplicationError(FailedOrchestration, err)
+	}
+	if res.StatusCode == http.StatusNotFound {
+		return Response{}, internalErrors.NewNotFoundError(NotFoundCEP,
+			errors.New(fmt.Sprintf("status_code:%d", res.StatusCode)))
 	}
 	if res.StatusCode != http.StatusOK {
 		return Response{}, internalErrors.NewApplicationError(FailedOrchestration,

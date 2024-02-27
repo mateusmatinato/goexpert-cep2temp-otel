@@ -2,16 +2,11 @@ package input
 
 import (
 	"context"
-	"errors"
 
 	"github.com/mateusmatinato/goexpert-cep2temp-otel/internal/input/orchestration"
 	"github.com/mateusmatinato/goexpert-cep2temp-otel/internal/platform/log"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-)
-
-var (
-	ErrOrchestrationCEP = errors.New("ERR_ORCHESTRATION_CEP")
 )
 
 type Service interface {
@@ -34,7 +29,7 @@ func (s service) GetTemperatureByCEP(ctx context.Context, request Request) (Resp
 	resp, err := s.orchClient.GetTemperatureByCEP(ctx, request.CEP)
 	if err != nil {
 		log.Error(ctx, "error calling orchestration service", err)
-		return Response{}, ErrOrchestrationCEP
+		return Response{}, err
 	}
 
 	span.SetAttributes(attribute.String("city", resp.City))

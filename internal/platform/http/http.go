@@ -16,7 +16,7 @@ func NewDefaultClient() *http.Client {
 			otelhttp.WithTracerProvider(otel.GetTracerProvider()),
 			otelhttp.WithPropagators(otel.GetTextMapPropagator()),
 		),
-		Timeout: 3 * time.Second,
+		Timeout: 5 * time.Second,
 	}
 }
 

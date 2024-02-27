@@ -64,7 +64,7 @@ Upon implementation of the services, add the implementation of OTEL + Zipkin:
 
 ### Using docker-compose
 - Clone the repository;
-- Make sure to add a valid weather API key in the file `configs/config.env`;
+- Make sure to add a valid weather API key in the file `docker-compose.yml`;
 - Open terminal on the project folder;
 - Run `docker-compose up --build`;
 
