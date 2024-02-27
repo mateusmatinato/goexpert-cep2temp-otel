@@ -1,4 +1,4 @@
-# goexpert-rate-limiter <img src="https://www.svgrepo.com/show/353830/gopher.svg" width="40" height="40">
+# goexpert-cep2temp-otel <img src="https://www.svgrepo.com/show/353830/gopher.svg" width="40" height="40">
 
 ------
 ## Challenge description
