@@ -19,9 +19,9 @@ func (h handler) GetTemperatureByCEP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	vars := mux.Vars(r)
-	cep := vars["cep"]
+	cepStr := vars["cep"]
 
-	temp, err := h.service.GetTemperatureByCEP(r.Context(), NewRequest(cep))
+	temp, err := h.service.GetTemperatureByCEP(r.Context(), NewRequest(cepStr))
 	if err != nil {
 		appErr := errors.Encode(err)
 		w.WriteHeader(appErr.Code)

@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
 	internalErrors "github.com/mateusmatinato/goexpert-cep2temp-otel/internal/platform/errors"
+	httpPlatform "github.com/mateusmatinato/goexpert-cep2temp-otel/internal/platform/http"
+	"github.com/mateusmatinato/goexpert-cep2temp-otel/internal/platform/log"
+	"go.opentelemetry.io/otel/trace"
 )
 
 const (
@@ -21,14 +23,25 @@ type Client interface {
 }
 
 type clientHandler struct {
-	client    http.Client
+	tracer    trace.Tracer
+	client    *http.Client
 	apiConfig APIConfig
 }
 
 func (c clientHandler) GetTemperatureByCEP(ctx context.Context, cep string) (Response, error) {
+	ctx, span := c.tracer.Start(ctx, "orchestration-api")
+	defer span.End()
+
 	url := fmt.Sprintf("%s/%s", c.apiConfig.OrchestrationURL, cep)
-	log.Printf("calling url: %s\n", url)
-	res, err := c.client.Get(url)
+
+	log.Info(ctx, "calling orchestration api", log.Tag("url", url))
+
+	req, err := httpPlatform.NewReq(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return Response{}, internalErrors.NewApplicationError(FailedOrchestration, err)
+	}
+
+	res, err := c.client.Do(req)
 	if err != nil {
 		return Response{}, internalErrors.NewApplicationError(FailedOrchestration, err)
 	}
@@ -46,6 +59,6 @@ func (c clientHandler) GetTemperatureByCEP(ctx context.Context, cep string) (Res
 	return resp, nil
 }
 
-func NewClient(client http.Client, apiConfig APIConfig) Client {
-	return &clientHandler{client: client, apiConfig: apiConfig}
+func NewClient(tracer trace.Tracer, client *http.Client, apiConfig APIConfig) Client {
+	return &clientHandler{tracer: tracer, client: client, apiConfig: apiConfig}
 }

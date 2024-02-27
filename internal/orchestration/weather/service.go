@@ -9,6 +9,8 @@ import (
 	"net/url"
 
 	internalErrors "github.com/mateusmatinato/goexpert-cep2temp-otel/internal/platform/errors"
+	httpPlatform "github.com/mateusmatinato/goexpert-cep2temp-otel/internal/platform/http"
+	"go.opentelemetry.io/otel/trace"
 )
 
 const (
@@ -21,13 +23,23 @@ type Service interface {
 }
 
 type service struct {
-	client    http.Client
+	tracer    trace.Tracer
+	client    *http.Client
 	apiConfig APIConfig
 }
 
-func (s service) GetInfo(_ context.Context, request Request) (Response, error) {
+func (s service) GetInfo(ctx context.Context, request Request) (Response, error) {
+	ctx, span := s.tracer.Start(ctx, "weather-api")
+	defer span.End()
+
 	weatherURL := fmt.Sprintf(s.apiConfig.URL, s.apiConfig.APIKey, url.QueryEscape(request.Query))
-	res, err := s.client.Get(weatherURL)
+
+	req, err := httpPlatform.NewReq(ctx, http.MethodGet, weatherURL, nil)
+	if err != nil {
+		return Response{}, internalErrors.NewApplicationError(FailedGetInfo, err)
+	}
+
+	res, err := s.client.Do(req)
 	if err != nil {
 		return Response{}, internalErrors.NewApplicationError(FailedGetInfo, err)
 	}
@@ -45,6 +57,6 @@ func (s service) GetInfo(_ context.Context, request Request) (Response, error) {
 	return resp, nil
 }
 
-func NewService(client http.Client, apiConfig APIConfig) Service {
-	return &service{client: client, apiConfig: apiConfig}
+func NewService(tracer trace.Tracer, client *http.Client, apiConfig APIConfig) Service {
+	return &service{tracer: tracer, client: client, apiConfig: apiConfig}
 }

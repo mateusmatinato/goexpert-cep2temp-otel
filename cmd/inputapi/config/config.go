@@ -6,7 +6,9 @@ import (
 )
 
 type Config struct {
-	OrchestrationURL string `mapstructure:"ORCHESTRATION_URL"`
+	OrchestrationURL     string `mapstructure:"ORCHESTRATION_URL"`
+	ServiceName          string `mapstructure:"OTEL_SERVICE_INPUT_NAME"`
+	OTELExporterEndpoint string `mapstructure:"OTEL_EXPORTER_OTLP_ENDPOINT"`
 }
 
 func (c *Config) OrchClientConfig() orchestration.APIConfig {

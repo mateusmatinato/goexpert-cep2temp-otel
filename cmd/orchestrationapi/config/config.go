@@ -7,9 +7,11 @@ import (
 )
 
 type Config struct {
-	WeatherURL string `mapstructure:"WEATHER_URL"`
-	WeatherKey string `mapstructure:"WEATHER_API_KEY"`
-	CepURL     string `mapstructure:"CEP_URL"`
+	WeatherURL           string `mapstructure:"WEATHER_URL"`
+	WeatherKey           string `mapstructure:"WEATHER_API_KEY"`
+	CepURL               string `mapstructure:"CEP_URL"`
+	ServiceName          string `mapstructure:"OTEL_SERVICE_ORCHESTRATE_NAME"`
+	OTELExporterEndpoint string `mapstructure:"OTEL_EXPORTER_OTLP_ENDPOINT"`
 }
 
 func (c *Config) WeatherAPIConfig() weather.APIConfig {

@@ -2,10 +2,12 @@ package orchestration
 
 import (
 	"context"
-	"log"
 
 	"github.com/mateusmatinato/goexpert-cep2temp-otel/internal/orchestration/cep"
 	"github.com/mateusmatinato/goexpert-cep2temp-otel/internal/orchestration/weather"
+	log "github.com/mateusmatinato/goexpert-cep2temp-otel/internal/platform/log"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type Service interface {
@@ -18,25 +20,33 @@ type service struct {
 }
 
 func (s service) GetTemperatureByCEP(ctx context.Context, request Request) (Response, error) {
-	log.Printf("starting cep2temp for cep %s\n", request.CEP)
+	span := trace.SpanFromContext(ctx)
+	span.SetAttributes(attribute.String("cep", request.CEP))
+
+	log.Info(ctx, "starting cep2temp", log.Tag("cep", request.CEP))
 
 	cepRequest := request.BuildCEPRequest()
 	cepResponse, err := s.cepService.GetInfo(ctx, cepRequest)
 	if err != nil {
-		log.Printf("error getting cep info: %v\n", err)
+		log.Error(ctx, "error getting cep info", err)
 		return Response{}, err
 	}
+	span.SetAttributes(attribute.String("city", cepResponse.City))
+	span.SetAttributes(attribute.String("state", cepResponse.State))
 
 	weatherRequest := NewWeatherRequest(cepResponse)
 	weatherResponse, err := s.weatherService.GetInfo(ctx, weatherRequest)
 	if err != nil {
-		log.Printf("error getting weather info: %v\n", err)
+		log.Error(ctx, "error getting weather info", err)
 		return Response{}, err
 	}
 
 	resp := NewResponse(cepResponse, weatherResponse)
-	log.Printf("finished cep2temp for cep %s | temp_c: %.2f, | temp_f: %.2f, | temp_k: %.2f | city: %s\n",
-		request.CEP, resp.TempCelsius, resp.TempFahrenheit, resp.TempKelvin, resp.City)
+	span.SetAttributes(attribute.Float64("celsius", resp.TempCelsius))
+	log.Info(ctx, "finished cep2temp", log.Tag("cep", request.CEP), log.Tag("temp_c", resp.TempCelsius),
+		log.Tag("temp_f", resp.TempFahrenheit), log.Tag("temp_k", resp.TempKelvin),
+		log.Tag("city", resp.City))
+
 	return resp, nil
 }
 

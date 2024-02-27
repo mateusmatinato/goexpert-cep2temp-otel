@@ -19,7 +19,6 @@ func (h handler) GetTemperatureByCEP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var req Request
-
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		appErr := errors.Encode(errors.NewUnprocessableError(err.Error()))

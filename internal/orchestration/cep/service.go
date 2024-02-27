@@ -8,6 +8,8 @@ import (
 	"net/http"
 
 	internalErrors "github.com/mateusmatinato/goexpert-cep2temp-otel/internal/platform/errors"
+	httpPlatform "github.com/mateusmatinato/goexpert-cep2temp-otel/internal/platform/http"
+	"go.opentelemetry.io/otel/trace"
 )
 
 const (
@@ -21,12 +23,21 @@ type Service interface {
 }
 
 type service struct {
-	client    http.Client
+	tracer    trace.Tracer
+	client    *http.Client
 	apiConfig APIConfig
 }
 
-func (s service) GetInfo(_ context.Context, request Request) (Response, error) {
-	res, err := s.client.Get(fmt.Sprintf(s.apiConfig.URL, request.Cep))
+func (s service) GetInfo(ctx context.Context, request Request) (Response, error) {
+	ctx, span := s.tracer.Start(ctx, "cep-api")
+	defer span.End()
+
+	req, err := httpPlatform.NewReq(ctx, http.MethodGet, fmt.Sprintf(s.apiConfig.URL, request.Cep), nil)
+	if err != nil {
+		return Response{}, internalErrors.NewApplicationError(FailedGetInfo, err)
+	}
+
+	res, err := s.client.Do(req)
 	if err != nil {
 		return Response{}, internalErrors.NewApplicationError(FailedGetInfo, err)
 	}
@@ -52,8 +63,9 @@ func (s service) GetInfo(_ context.Context, request Request) (Response, error) {
 	return resp, nil
 }
 
-func NewService(client http.Client, config APIConfig) Service {
+func NewService(tracer trace.Tracer, client *http.Client, config APIConfig) Service {
 	return &service{
+		tracer:    tracer,
 		client:    client,
 		apiConfig: config,
 	}
